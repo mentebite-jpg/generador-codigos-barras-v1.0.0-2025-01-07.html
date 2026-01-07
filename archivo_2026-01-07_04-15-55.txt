@@ -1,0 +1,2152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Códigos de Barras Profesional - EAN-14 con Dígito Validador</title>
+    <style>
+        :root {
+            --gs1-orange: #f37021;
+            --blue: #253e86;
+            --light-gray: #f5f5f5;
+            --dark-gray: #333;
+            --white: #ffffff;
+            --error: #dc3545;
+            --warning: #ffc107;
+            --success: #28a745;
+            --gs1-green: #4CAF50;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            user-select: text;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--blue) 0%, #1a2b5c 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 26px;
+            margin-bottom: 8px;
+            color: white;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 14px;
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 25px;
+            gap: 25px;
+        }
+        
+        .left-panel {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .right-panel {
+            flex: 2;
+            min-width: 300px;
+        }
+        
+        .panel {
+            background: var(--light-gray);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .panel h2 {
+            color: var(--blue);
+            border-bottom: 2px solid var(--gs1-orange);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            font-size: 14px;
+        }
+        
+        select, input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--gs1-orange);
+            box-shadow: 0 0 0 3px rgba(243, 112, 33, 0.1);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        
+        .btn {
+            background: var(--gs1-orange);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .btn:hover {
+            background: #e05c1a;
+        }
+        
+        .btn-secondary {
+            background: var(--blue);
+        }
+        
+        .btn-secondary:hover {
+            background: #1a2b5c;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .barcode-preview {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            min-height: 150px;
+            max-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        
+        #barcode {
+            max-width: 100%;
+            max-height: 150px;
+            height: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        .info-box {
+            background: #e8f4fd;
+            border-left: 4px solid var(--blue);
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .alert {
+            padding: 12px;
+            border-radius: 5px;
+            margin: 12px 0;
+            font-size: 13px;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: var(--error);
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: var(--success);
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .format-info {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        
+        .format-info h4 {
+            color: var(--gs1-orange);
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        
+        .dimension-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        
+        .dimension-item {
+            text-align: center;
+        }
+        
+        .dimension-value {
+            font-weight: bold;
+            color: var(--blue);
+            font-size: 13px;
+        }
+        
+        .gs1-compliance {
+            background: #d4edda;
+            padding: 8px;
+            border-radius: 5px;
+            margin-top: 12px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .gs1-non-compliance {
+            background: #f8d7da;
+            padding: 8px;
+            border-radius: 5px;
+            margin-top: 12px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .example {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        
+        .compliance-badge {
+            display: inline-block;
+            background: var(--gs1-orange);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .code-display {
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-align: center;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .color-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        
+        .color-info h4 {
+            color: #0c5460;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 15px;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+        
+        .quick-tips {
+            background: #f0f7ff;
+            border-radius: 6px;
+            padding: 12px;
+            margin: 15px 0;
+            font-size: 13px;
+        }
+        
+        .quick-tips h4 {
+            color: var(--blue);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .quick-tips ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+        
+        .quick-tips li {
+            margin-bottom: 6px;
+        }
+        
+        .simple-instruction {
+            background: #f8f9fa;
+            border-left: 3px solid var(--gs1-orange);
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+        
+        .highlight-box {
+            background: #fff8e1;
+            border: 1px solid #ffd54f;
+            border-radius: 5px;
+            padding: 12px;
+            margin: 12px 0;
+        }
+        
+        .format-badge {
+            display: inline-block;
+            background: #253e86;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 5px;
+        }
+        
+        .dpi-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .dpi-btn {
+            padding: 8px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 11px;
+        }
+        
+        .dpi-btn:hover {
+            border-color: var(--blue);
+            background: rgba(37, 62, 134, 0.05);
+        }
+        
+        .dpi-btn.active {
+            background: var(--blue);
+            color: white;
+            border-color: var(--blue);
+        }
+        
+        .dpi-btn.warning {
+            border-color: #ff9800;
+            background: rgba(255, 152, 0, 0.1);
+        }
+        
+        .dpi-btn.warning.active {
+            background: #ff9800;
+            color: white;
+            border-color: #ff9800;
+        }
+        
+        .scale-btn {
+            padding: 10px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        
+        .scale-btn:hover {
+            border-color: var(--blue);
+            background: rgba(37, 62, 134, 0.05);
+        }
+        
+        .scale-btn.active {
+            background: var(--blue);
+            color: white;
+            border-color: var(--blue);
+        }
+        
+        .format-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .format-option {
+            padding: 10px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        
+        .format-option:hover {
+            border-color: var(--gs1-orange);
+            background: rgba(243, 112, 33, 0.05);
+        }
+        
+        .format-option.active {
+            background: var(--gs1-orange);
+            color: white;
+            border-color: var(--gs1-orange);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+            backdrop-filter: blur(3px);
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--gs1-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 16px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .format-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .format-info-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .format-info-icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        .performance-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 8px 10px;
+            margin-top: 8px;
+            font-size: 11px;
+            color: #856404;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .color-picker-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 8px;
+        }
+        
+        .color-picker {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .color-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .color-option:hover {
+            border-color: var(--gs1-orange);
+            background: rgba(243, 112, 33, 0.05);
+        }
+        
+        .color-option.active {
+            border-color: var(--blue);
+            background: rgba(37, 62, 134, 0.1);
+        }
+        
+        .color-swatch {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        .color-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .color-input-container {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .color-input {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .color-input-label {
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .rotation-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .rotation-btn {
+            padding: 10px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 12px;
+            position: relative;
+        }
+        
+        .rotation-btn:hover {
+            border-color: var(--blue);
+            background: rgba(37, 62, 134, 0.05);
+        }
+        
+        .rotation-btn.active {
+            background: var(--blue);
+            color: white;
+            border-color: var(--blue);
+        }
+        
+        .preview-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .preview-btn {
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        
+        .preview-btn:hover {
+            background: #f8f9fa;
+            border-color: var(--blue);
+        }
+        
+        .recommended-badge {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            margin-left: 5px;
+            font-weight: bold;
+        }
+        
+        .color-presets {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .color-preset {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .color-preset:hover {
+            transform: scale(1.1);
+            border-color: var(--gs1-orange);
+        }
+        
+        .color-preset.active {
+            border-color: var(--blue);
+            transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .legal-notice {
+            font-size: 9px;
+            color: #999;
+            margin-top: 5px;
+            text-align: center;
+        }
+    </style>
+    
+    <meta name="copyright" content="© 2025 Generador de Códigos de Barras Professional - Todos los derechos reservados">
+    <meta name="description" content="Generador profesional de códigos de barras con cálculo automático de dígito validador para formatos EAN-14, EAN-13, UPC-12 y CODE-128">
+    <meta name="keywords" content="código de barras, generador, dígito validador, código de barras profesional, EAN-14, EAN-13, UPC, CODE-128">
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+</head>
+<body>
+    <!-- Overlay de carga -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">Generando imagen...</div>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Generador de Códigos de Barras Profesional <span class="compliance-badge">Dígito Validador Automático</span></h1>
+            <p>Seleccione el formato e ingrese los datos para generar el código correspondiente</p>
+        </div>
+        
+        <div class="content">
+            <div class="left-panel">
+                <div class="panel">
+                    <h2>Formato de Código</h2>
+                    
+                    <div class="form-group">
+                        <label>Seleccione formato:</label>
+                        <div class="format-selector">
+                            <div class="format-option active" data-format="ITF14" onclick="selectFormat('ITF14')">EAN-14</div>
+                            <div class="format-option" data-format="EAN13" onclick="selectFormat('EAN13')">EAN-13</div>
+                            <div class="format-option" data-format="UPC" onclick="selectFormat('UPC')">UPC-12</div>
+                            <div class="format-option" data-format="CODE128" onclick="selectFormat('CODE128')">CODE-128</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Datos del código:</label>
+                        <textarea id="dataInput" placeholder="Ejemplo: 1742336640012">1742336640012</textarea>
+                        <div class="example" id="formatExample">Ingrese 13 dígitos para EAN-14 (sin dígito validador)</div>
+                    </div>
+                    
+                    <div class="simple-instruction">
+                        <strong>⚡ Funcionamiento rápido:</strong>
+                        <p>1. Selecciona el formato deseado</p>
+                        <p>2. Ingresa los datos según el formato</p>
+                        <p>3. El sistema calcula automáticamente el dígito validador</p>
+                        <p>4. Genera y descarga el código</p>
+                    </div>
+                    
+                    <div id="alertBox" class="alert" style="display: none;"></div>
+                    
+                    <button class="btn" onclick="generateBarcode()">
+                        <span>Generar Código de Barras</span>
+                    </button>
+                    
+                    <div class="quick-tips">
+                        <h4>💡 Consejos importantes:</h4>
+                        <ul>
+                            <li>Usa solo números para EAN/UPC</li>
+                            <li>CODE-128 acepta texto alfanumérico</li>
+                            <li>El dígito validador se calcula automáticamente</li>
+                            <li>Presiona Enter en el campo para generar rápidamente</li>
+                            <li><strong>SVG para máxima calidad</strong> (vectorial, escala sin pérdida)</li>
+                            <li><strong>PNG 300 DPI para impresión profesional</strong></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h2>Configuración Personalizada</h2>
+                    
+                    <div class="dimension-info">
+                        <div class="dimension-item">
+                            <div>Altura</div>
+                            <div class="dimension-value" id="currentHeight">32.0 mm</div>
+                        </div>
+                        <div class="dimension-item">
+                            <div>Ancho</div>
+                            <div class="dimension-value" id="currentWidth">46.0 mm</div>
+                        </div>
+                        <div class="dimension-item">
+                            <div>Escala</div>
+                            <div class="dimension-value" id="currentScale">100%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Escala:</label>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px;">
+                            <div class="scale-btn active" data-scale="1" onclick="selectScale(1)">100%</div>
+                            <div class="scale-btn" data-scale="1.2" onclick="selectScale(1.2)">120%</div>
+                            <div class="scale-btn" data-scale="1.5" onclick="selectScale(1.5)">150%</div>
+                            <div class="scale-btn" data-scale="2" onclick="selectScale(2)">200%</div>
+                        </div>
+                        <input type="hidden" id="scaleInput" value="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Rotación del código:</label>
+                        <div class="rotation-selector">
+                            <div class="rotation-btn active" data-rotation="0" onclick="selectRotation(0)">0°</div>
+                            <div class="rotation-btn" data-rotation="90" onclick="selectRotation(90)">90°</div>
+                            <div class="rotation-btn" data-rotation="180" onclick="selectRotation(180)">180°</div>
+                            <div class="rotation-btn" data-rotation="270" onclick="selectRotation(270)">270°</div>
+                        </div>
+                        <input type="hidden" id="rotationInput" value="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Colores personalizados:</label>
+                        
+                        <div class="color-picker-container">
+                            <div class="color-picker">
+                                <div class="color-option active" onclick="selectColorPreset('black', '#000000')">
+                                    <div class="color-swatch" style="background-color: #000000;"></div>
+                                    <span class="color-label">Negro</span>
+                                </div>
+                                <div class="color-option" onclick="selectColorPreset('blue', '#253e86')">
+                                    <div class="color-swatch" style="background-color: #253e86;"></div>
+                                    <span class="color-label">Azul</span>
+                                </div>
+                                <div class="color-option" onclick="selectColorPreset('red', '#dc3545')">
+                                    <div class="color-swatch" style="background-color: #dc3545;"></div>
+                                    <span class="color-label">Rojo</span>
+                                </div>
+                                <div class="color-option" onclick="selectColorPreset('green', '#28a745')">
+                                    <div class="color-swatch" style="background-color: #28a745;"></div>
+                                    <span class="color-label">Verde</span>
+                                </div>
+                            </div>
+                            
+                            <div class="color-picker">
+                                <div class="color-option active" onclick="selectBgColorPreset('white', '#ffffff')">
+                                    <div class="color-swatch" style="background-color: #ffffff; border: 1px solid #ddd;"></div>
+                                    <span class="color-label">Blanco</span>
+                                </div>
+                                <div class="color-option" onclick="selectBgColorPreset('light-gray', '#f5f5f5')">
+                                    <div class="color-swatch" style="background-color: #f5f5f5; border: 1px solid #ddd;"></div>
+                                    <span class="color-label">Gris claro</span>
+                                </div>
+                                <div class="color-option" onclick="selectBgColorPreset('yellow', '#fff3cd')">
+                                    <div class="color-swatch" style="background-color: #fff3cd; border: 1px solid #ddd;"></div>
+                                    <span class="color-label">Amarillo</span>
+                                </div>
+                                <div class="color-option" onclick="selectBgColorPreset('blue-light', '#e8f4fd')">
+                                    <div class="color-swatch" style="background-color: #e8f4fd; border: 1px solid #ddd;"></div>
+                                    <span class="color-label">Azul claro</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="color-input-container">
+                            <div>
+                                <div class="color-input-label">Color personalizado de barras:</div>
+                                <input type="color" id="barColorPicker" value="#000000" class="color-input" onchange="updateBarColorCustom(this.value)">
+                            </div>
+                            <div>
+                                <div class="color-input-label">Color personalizado de fondo:</div>
+                                <input type="color" id="bgColorPicker" value="#ffffff" class="color-input" onchange="updateBgColorCustom(this.value)">
+                            </div>
+                        </div>
+                        
+                        <button class="preview-btn" onclick="resetColors()" style="margin-top: 10px; width: 100%;">Restablecer colores por defecto</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>DPI para PNG/JPG <span class="recommended-badge">300 DPI recomendado</span>:</label>
+                        <div class="dpi-selector">
+                            <div class="dpi-btn" data-dpi="150" onclick="selectDPI(150)">150 DPI</div>
+                            <div class="dpi-btn active" data-dpi="300" onclick="selectDPI(300)">300 DPI</div>
+                            <div class="dpi-btn warning" data-dpi="600" onclick="selectDPI(600)">600 DPI</div>
+                            <div class="dpi-btn" data-dpi="150" onclick="selectDPI(150)">150 DPI</div>
+                        </div>
+                        <div class="performance-warning" id="dpiWarning" style="display: none;">
+                            ⚠️ 600 DPI es para impresión de alta calidad. La generación puede tardar más.
+                        </div>
+                        <input type="hidden" id="dpiInput" value="300">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <div class="panel">
+                    <h2>Vista Previa del Código</h2>
+                    
+                    <div class="barcode-preview">
+                        <svg id="barcode"></svg>
+                        <div id="noBarcode" style="display: block; text-align: center;">
+                            <p style="color: #666; font-size: 14px;">El código de barras aparecerá aquí</p>
+                            <p style="color: #999; font-size: 12px; margin-top: 10px;">Seleccione formato e ingrese datos</p>
+                        </div>
+                    </div>
+                    
+                    <div class="preview-controls">
+                        <button class="preview-btn" onclick="applyRotation()">Aplicar Rotación</button>
+                        <button class="preview-btn" onclick="resetRotation()">Restablecer Rotación</button>
+                        <button class="preview-btn" onclick="generateBarcode()">Actualizar Vista</button>
+                    </div>
+                    
+                    <div id="codeDisplay" class="code-display" style="display: none;"></div>
+                    
+                    <div id="complianceInfo" class="gs1-compliance" style="display: none;">
+                        <span>✓</span> <span id="complianceText">Código válido según estándares internacionales</span>
+                    </div>
+                    
+                    <div id="nonComplianceInfo" class="gs1-non-compliance" style="display: none;">
+                        <span>✗</span> <span id="nonComplianceText">Error en el código</span>
+                    </div>
+                    
+                    <div class="info-box" id="previewInfo">
+                        <h3>Información del Código</h3>
+                        <p id="codeInfo">Seleccione formato e ingrese datos para generar el código.</p>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn" onclick="downloadPNG()">
+                            <span>PNG <span class="recommended-badge">300 DPI</span></span>
+                        </button>
+                        <button class="btn" onclick="downloadSVG()">
+                            <span>SVG <span class="recommended-badge">RECOMENDADO</span></span>
+                        </button>
+                        <button class="btn" onclick="downloadJPG()">
+                            <span>JPG</span>
+                        </button>
+                        <button class="btn btn-secondary" onclick="printBarcode()">
+                            <span>Imprimir</span>
+                        </button>
+                    </div>
+                    
+                    <div class="alert alert-info" style="margin-top: 15px;">
+                        <strong>💡 Para impresión profesional:</strong>
+                        <p style="margin-top: 5px; font-size: 12px;">
+                            1. Use <strong>SVG</strong> (vectorial, máxima calidad)<br>
+                            2. O use <strong>PNG a 300 DPI</strong><br>
+                            3. Abra el archivo en Photoshop/Illustrator y exporte como EPS si es necesario
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h2>Información Técnica</h2>
+                    
+                    <div class="highlight-box">
+                        <strong>📋 Especificaciones por formato:</strong>
+                        <ul style="margin-top: 8px; padding-left: 20px;">
+                            <li><span class="format-badge">EAN-14</span> 14 dígitos (13 datos + 1 dígito validador) - Logística</li>
+                            <li><span class="format-badge">EAN-13</span> 13 dígitos (12 datos + 1 dígito validador) - Productos</li>
+                            <li><span class="format-badge">UPC-12</span> 12 dígitos (11 datos + 1 dígito validador) - USA/Canadá</li>
+                            <li><span class="format-badge">CODE-128</span> Texto alfanumérico - Usos generales</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="format-info-grid">
+                        <div class="format-info-item">
+                            <span class="format-info-icon">📄</span>
+                            <strong>SVG</strong>
+                            <div>Vectorial escalable</div>
+                            <div style="font-size: 10px; color: #666;">Máxima calidad</div>
+                        </div>
+                        <div class="format-info-item">
+                            <span class="format-info-icon">🖼️</span>
+                            <strong>PNG</strong>
+                            <div>300 DPI estándar</div>
+                            <div style="font-size: 10px; color: #666;">Impresión profesional</div>
+                        </div>
+                        <div class="format-info-item">
+                            <span class="format-info-icon">🖼️</span>
+                            <strong>JPG</strong>
+                            <div>Para web y digital</div>
+                            <div style="font-size: 10px; color: #666;">Tamaño reducido</div>
+                        </div>
+                        <div class="format-info-item">
+                            <span class="format-info-icon">🖨️</span>
+                            <strong>IMPRESIÓN</strong>
+                            <div>Directo a impresora</div>
+                            <div style="font-size: 10px; color: #666;">Vista previa optimizada</div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info" style="margin-top: 12px;">
+                        <strong>ℹ️ Nota:</strong> Los dígitos validadores para EAN/UPC se calculan automáticamente usando algoritmos estándar. CODE-128 no requiere dígito validador.
+                    </div>
+                    
+                    <div class="alert alert-success" style="margin-top: 12px;">
+                        <strong>✅ SVG es la mejor opción:</strong>
+                        <p style="margin-top: 5px; font-size: 12px;">
+                            • Escala infinitamente sin perder calidad<br>
+                            • Compatible con Illustrator, CorelDRAW, InDesign<br>
+                            • Puede convertirse a EPS fácilmente en software profesional<br>
+                            • Tamaño de archivo pequeño
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>✔️ Cálculo automático de dígito validador • ✔️ 4 formatos de código • ✔️ 3 formatos de exportación confiables • ✔️ Generación profesional</p>
+            <p style="margin-top: 10px; font-size: 10px; color: #999;">© 2025 Generador de Códigos de Barras - Todos los derechos reservados</p>
+        </div>
+    </div>
+    
+    <script>
+        // ====================================================================
+        // CONFIGURACIÓN GLOBAL
+        // ====================================================================
+        
+        let currentBarcode = null;
+        let currentScale = 1;
+        let currentDPI = 300;
+        let currentFormat = 'ITF14';
+        let currentRotation = 0;
+        let currentBarColor = '#000000';
+        let currentBgColor = '#ffffff';
+        
+        // Configuraciones por formato
+        const formatConfig = {
+            'ITF14': {
+                name: 'EAN-14',
+                placeholder: '1742336640012',
+                example: 'Ingrese 13 dígitos para EAN-14 (sin dígito validador)',
+                minLength: 13,
+                maxLength: 14,
+                validation: validateEAN14Data,
+                calculateCheckDigit: calculateEAN14CheckDigit,
+                defaultHeight: 32,
+                defaultWidth: 46
+            },
+            'EAN13': {
+                name: 'EAN-13',
+                placeholder: '590123412345',
+                example: 'Ingrese 12 dígitos para EAN-13 (sin dígito validador)',
+                minLength: 12,
+                maxLength: 13,
+                validation: validateEAN13Data,
+                calculateCheckDigit: calculateEAN13CheckDigit,
+                defaultHeight: 25,
+                defaultWidth: 37
+            },
+            'UPC': {
+                name: 'UPC-12',
+                placeholder: '12345678901',
+                example: 'Ingrese 11 dígitos para UPC-12 (sin dígito validador)',
+                minLength: 11,
+                maxLength: 12,
+                validation: validateUPCData,
+                calculateCheckDigit: calculateUPCheckDigit,
+                defaultHeight: 25,
+                defaultWidth: 37
+            },
+            'CODE128': {
+                name: 'CODE-128',
+                placeholder: 'ABC123456789',
+                example: 'Ingrese texto alfanumérico para CODE-128',
+                minLength: 1,
+                maxLength: 100,
+                validation: validateCODE128Data,
+                calculateCheckDigit: null,
+                defaultHeight: 20,
+                defaultWidth: 40
+            }
+        };
+        
+        // ====================================================================
+        // FUNCIONES DE VALIDACIÓN Y CÁLCULO POR FORMATO
+        // ====================================================================
+        
+        // Algoritmo para EAN-14
+        function calculateEAN14CheckDigit(data) {
+            if (!/^\d{13}$/.test(data)) {
+                throw new Error("Se requieren exactamente 13 dígitos para EAN-14");
+            }
+            
+            let sum = 0;
+            for (let i = 0; i < 13; i++) {
+                let digit = parseInt(data.charAt(i));
+                let position = i + 1;
+                sum += (position % 2 === 1) ? digit * 3 : digit;
+            }
+            
+            let remainder = sum % 10;
+            return (10 - remainder) % 10;
+        }
+        
+        // Algoritmo para EAN-13
+        function calculateEAN13CheckDigit(data) {
+            if (!/^\d{12}$/.test(data)) {
+                throw new Error("Se requieren exactamente 12 dígitos para EAN-13");
+            }
+            
+            let sum = 0;
+            for (let i = 0; i < 12; i++) {
+                let digit = parseInt(data.charAt(i));
+                sum += (i % 2 === 0) ? digit : digit * 3;
+            }
+            
+            let remainder = sum % 10;
+            return (10 - remainder) % 10;
+        }
+        
+        // Algoritmo para UPC-12 (igual que EAN-13 pero con 11 dígitos de entrada)
+        function calculateUPCheckDigit(data) {
+            if (!/^\d{11}$/.test(data)) {
+                throw new Error("Se requieren exactamente 11 dígitos para UPC-12");
+            }
+            
+            let sum = 0;
+            for (let i = 0; i < 11; i++) {
+                let digit = parseInt(data.charAt(i));
+                sum += (i % 2 === 0) ? digit * 3 : digit;
+            }
+            
+            let remainder = sum % 10;
+            return (10 - remainder) % 10;
+        }
+        
+        // Validación EAN-14
+        function validateEAN14Data(data) {
+            if (!/^\d{13,14}$/.test(data)) {
+                return {
+                    valid: false,
+                    message: "EAN-14 requiere 13 dígitos (sin validador) o 14 dígitos (completo)"
+                };
+            }
+            
+            let data13, providedCheckDigit, calculatedCheckDigit;
+            
+            if (data.length === 13) {
+                data13 = data;
+                calculatedCheckDigit = calculateEAN14CheckDigit(data13);
+                return {
+                    valid: true,
+                    dataBase: data13,
+                    dataFull: data13 + calculatedCheckDigit,
+                    providedCheckDigit: null,
+                    calculatedCheckDigit: calculatedCheckDigit,
+                    needsCheckDigit: true,
+                    message: `Dígito validador calculado: ${calculatedCheckDigit}`
+                };
+            } else {
+                data13 = data.substring(0, 13);
+                providedCheckDigit = parseInt(data.charAt(13));
+                calculatedCheckDigit = calculateEAN14CheckDigit(data13);
+                
+                if (providedCheckDigit === calculatedCheckDigit) {
+                    return {
+                        valid: true,
+                        dataBase: data13,
+                        dataFull: data,
+                        providedCheckDigit: providedCheckDigit,
+                        calculatedCheckDigit: calculatedCheckDigit,
+                        needsCheckDigit: false,
+                        message: `Dígito validador correcto: ${providedCheckDigit}`
+                    };
+                } else {
+                    return {
+                        valid: false,
+                        dataBase: data13,
+                        dataFull: data13 + calculatedCheckDigit,
+                        providedCheckDigit: providedCheckDigit,
+                        calculatedCheckDigit: calculatedCheckDigit,
+                        needsCheckDigit: true,
+                        message: `Dígito validador incorrecto. Debería ser: ${calculatedCheckDigit}`
+                    };
+                }
+            }
+        }
+        
+        // Validación EAN-13
+        function validateEAN13Data(data) {
+            if (!/^\d{12,13}$/.test(data)) {
+                return {
+                    valid: false,
+                    message: "EAN-13 requiere 12 dígitos (sin validador) o 13 dígitos (completo)"
+                };
+            }
+            
+            let data12, providedCheckDigit, calculatedCheckDigit;
+            
+            if (data.length === 12) {
+                data12 = data;
+                calculatedCheckDigit = calculateEAN13CheckDigit(data12);
+                return {
+                    valid: true,
+                    dataBase: data12,
+                    dataFull: data12 + calculatedCheckDigit,
+                    providedCheckDigit: null,
+                    calculatedCheckDigit: calculatedCheckDigit,
+                    needsCheckDigit: true,
+                    message: `Dígito validador calculado: ${calculatedCheckDigit}`
+                };
+            } else {
+                data12 = data.substring(0, 12);
+                providedCheckDigit = parseInt(data.charAt(12));
+                calculatedCheckDigit = calculateEAN13CheckDigit(data12);
+                
+                if (providedCheckDigit === calculatedCheckDigit) {
+                    return {
+                        valid: true,
+                        dataBase: data12,
+                        dataFull: data,
+                        providedCheckDigit: providedCheckDigit,
+                        calculatedCheckDigit: calculatedCheckDigit,
+                        needsCheckDigit: false,
+                        message: `Dígito validador correcto: ${providedCheckDigit}`
+                    };
+                } else {
+                    return {
+                        valid: false,
+                        dataBase: data12,
+                        dataFull: data12 + calculatedCheckDigit,
+                        providedCheckDigit: providedCheckDigit,
+                        calculatedCheckDigit: calculatedCheckDigit,
+                        needsCheckDigit: true,
+                        message: `Dígito validador incorrecto. Debería ser: ${calculatedCheckDigit}`
+                    };
+                }
+            }
+        }
+        
+        // Validación UPC-12
+        function validateUPCData(data) {
+            if (!/^\d{11,12}$/.test(data)) {
+                return {
+                    valid: false,
+                    message: "UPC-12 requiere 11 dígitos (sin validador) o 12 dígitos (completo)"
+                };
+            }
+            
+            let data11, providedCheckDigit, calculatedCheckDigit;
+            
+            if (data.length === 11) {
+                data11 = data;
+                calculatedCheckDigit = calculateUPCheckDigit(data11);
+                return {
+                    valid: true,
+                    dataBase: data11,
+                    dataFull: data11 + calculatedCheckDigit,
+                    providedCheckDigit: null,
+                    calculatedCheckDigit: calculatedCheckDigit,
+                    needsCheckDigit: true,
+                    message: `Dígito validador calculado: ${calculatedCheckDigit}`
+                };
+            } else {
+                data11 = data.substring(0, 11);
+                providedCheckDigit = parseInt(data.charAt(11));
+                calculatedCheckDigit = calculateUPCheckDigit(data11);
+                
+                if (providedCheckDigit === calculatedCheckDigit) {
+                    return {
+                        valid: true,
+                        dataBase: data11,
+                        dataFull: data,
+                        providedCheckDigit: providedCheckDigit,
+                        calculatedCheckDigit: calculatedCheckDigit,
+                        needsCheckDigit: false,
+                        message: `Dígito validador correcto: ${providedCheckDigit}`
+                    };
+                } else {
+                    return {
+                        valid: false,
+                        dataBase: data11,
+                        dataFull: data11 + calculatedCheckDigit,
+                        providedCheckDigit: providedCheckDigit,
+                        calculatedCheckDigit: calculatedCheckDigit,
+                        needsCheckDigit: true,
+                        message: `Dígito validador incorrecto. Debería ser: ${calculatedCheckDigit}`
+                    };
+                }
+            }
+        }
+        
+        // Validación CODE-128 (sin dígito validador)
+        function validateCODE128Data(data) {
+            if (data.length < 1) {
+                return {
+                    valid: false,
+                    message: "CODE-128 requiere al menos 1 carácter"
+                };
+            }
+            
+            if (!/^[ -~]+$/.test(data)) {
+                return {
+                    valid: false,
+                    message: "CODE-128 solo acepta caracteres ASCII imprimibles"
+                };
+            }
+            
+            return {
+                valid: true,
+                dataBase: data,
+                dataFull: data,
+                providedCheckDigit: null,
+                calculatedCheckDigit: null,
+                needsCheckDigit: false,
+                message: "Texto válido para CODE-128"
+            };
+        }
+        
+        // ====================================================================
+        // FUNCIONES DE INTERFAZ - MEJORADAS
+        // ====================================================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar con EAN-14
+            selectFormat('ITF14');
+            setTimeout(generateBarcode, 500);
+            
+            // Configurar eventos para mejor usabilidad
+            const dataInput = document.getElementById('dataInput');
+            dataInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    generateBarcode();
+                }
+            });
+            
+            // Inicializar colores
+            updateColorOptionStates();
+        });
+        
+        function selectFormat(format) {
+            currentFormat = format;
+            const config = formatConfig[format];
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.format-option').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-format') === format) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Actualizar campo de entrada
+            const dataInput = document.getElementById('dataInput');
+            dataInput.value = config.placeholder;
+            dataInput.placeholder = config.placeholder;
+            
+            // Actualizar ejemplo
+            document.getElementById('formatExample').textContent = config.example;
+            
+            // Limpiar vista previa
+            document.getElementById('noBarcode').style.display = 'block';
+            document.getElementById('barcode').innerHTML = '';
+            document.getElementById('codeDisplay').style.display = 'none';
+            document.getElementById('complianceInfo').style.display = 'none';
+            document.getElementById('nonComplianceInfo').style.display = 'none';
+            
+            // Actualizar información
+            document.getElementById('codeInfo').textContent = 
+                `Seleccionado: ${config.name}. ${config.example}`;
+            
+            // Actualizar dimensiones por defecto
+            document.getElementById('currentHeight').textContent = `${config.defaultHeight}.0 mm`;
+            document.getElementById('currentWidth').textContent = `${config.defaultWidth}.0 mm`;
+        }
+        
+        function selectScale(scale) {
+            currentScale = scale;
+            document.getElementById('scaleInput').value = scale;
+            document.getElementById('currentScale').textContent = `${scale * 100}%`;
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.scale-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseFloat(btn.getAttribute('data-scale')) === scale) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Regenerar código si ya existe
+            if (currentBarcode) {
+                generateBarcode();
+            }
+        }
+        
+        function selectRotation(rotation) {
+            currentRotation = rotation;
+            document.getElementById('rotationInput').value = rotation;
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.rotation-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseInt(btn.getAttribute('data-rotation')) === rotation) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+        
+        function applyRotation() {
+            if (!currentBarcode) {
+                showAlert('❌ Genere un código de barras primero', 'error');
+                return;
+            }
+            
+            const barcodeSVG = document.getElementById('barcode');
+            if (!barcodeSVG || barcodeSVG.innerHTML === '') return;
+            
+            // Aplicar transformación CSS para rotación
+            barcodeSVG.style.transform = `rotate(${currentRotation}deg)`;
+            barcodeSVG.style.transformOrigin = 'center center';
+            
+            showAlert(`✅ Rotación aplicada: ${currentRotation}°`, 'success');
+        }
+        
+        function selectDPI(dpi) {
+            currentDPI = dpi;
+            document.getElementById('dpiInput').value = dpi;
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.dpi-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.remove('warning');
+                if (parseInt(btn.getAttribute('data-dpi')) === dpi) {
+                    btn.classList.add('active');
+                    if (dpi === 600) {
+                        btn.classList.add('warning');
+                    }
+                }
+            });
+            
+            // Mostrar advertencia para 600 DPI
+            const warning = document.getElementById('dpiWarning');
+            if (dpi === 600) {
+                warning.style.display = 'flex';
+            } else {
+                warning.style.display = 'none';
+            }
+        }
+        
+        // Función mejorada para selección de colores
+        function selectColorPreset(name, color) {
+            currentBarColor = color;
+            document.getElementById('barColorPicker').value = color;
+            
+            // Actualizar estado de opciones activas
+            updateColorOptionStates();
+            
+            if (currentBarcode) {
+                generateBarcode();
+            }
+        }
+        
+        function selectBgColorPreset(name, color) {
+            currentBgColor = color;
+            document.getElementById('bgColorPicker').value = color;
+            
+            // Actualizar estado de opciones activas
+            updateColorOptionStates();
+            
+            if (currentBarcode) {
+                generateBarcode();
+            }
+        }
+        
+        function updateColorOptionStates() {
+            // Actualizar opciones de color de barras
+            document.querySelectorAll('.color-picker:first-child .color-option').forEach(option => {
+                const swatch = option.querySelector('.color-swatch');
+                const color = swatch.style.backgroundColor;
+                const hexColor = rgbToHex(color) || '#000000';
+                
+                if (hexColor === currentBarColor) {
+                    option.classList.add('active');
+                } else {
+                    option.classList.remove('active');
+                }
+            });
+            
+            // Actualizar opciones de color de fondo
+            document.querySelectorAll('.color-picker:last-child .color-option').forEach(option => {
+                const swatch = option.querySelector('.color-swatch');
+                const color = swatch.style.backgroundColor;
+                const hexColor = rgbToHex(color) || '#ffffff';
+                
+                if (hexColor === currentBgColor) {
+                    option.classList.add('active');
+                } else {
+                    option.classList.remove('active');
+                }
+            });
+        }
+        
+        function rgbToHex(rgb) {
+            if (!rgb || rgb === '') return null;
+            
+            // Si ya es hexadecimal, devolverlo
+            if (rgb.startsWith('#')) return rgb;
+            
+            // Convertir rgb(r, g, b) a hexadecimal
+            const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+            if (!match) return null;
+            
+            const r = parseInt(match[1]);
+            const g = parseInt(match[2]);
+            const b = parseInt(match[3]);
+            
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+        
+        function updateBarColorCustom(color) {
+            currentBarColor = color;
+            
+            // Actualizar estado de opciones
+            updateColorOptionStates();
+            
+            if (currentBarcode) {
+                generateBarcode();
+            }
+        }
+        
+        function updateBgColorCustom(color) {
+            currentBgColor = color;
+            
+            // Actualizar estado de opciones
+            updateColorOptionStates();
+            
+            if (currentBarcode) {
+                generateBarcode();
+            }
+        }
+        
+        function resetColors() {
+            currentBarColor = '#000000';
+            currentBgColor = '#ffffff';
+            document.getElementById('barColorPicker').value = '#000000';
+            document.getElementById('bgColorPicker').value = '#ffffff';
+            
+            // Actualizar estado de opciones
+            updateColorOptionStates();
+            
+            if (currentBarcode) {
+                generateBarcode();
+            }
+            
+            showAlert('✅ Colores restablecidos a valores por defecto', 'success');
+        }
+        
+        function resetRotation() {
+            currentRotation = 0;
+            document.getElementById('rotationInput').value = '0';
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.rotation-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseInt(btn.getAttribute('data-rotation')) === 0) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Quitar rotación del SVG
+            const barcodeSVG = document.getElementById('barcode');
+            if (barcodeSVG) {
+                barcodeSVG.style.transform = 'rotate(0deg)';
+            }
+            
+            showAlert('✅ Rotación restablecida a 0°', 'success');
+        }
+        
+        function showAlert(message, type = 'error') {
+            const alertBox = document.getElementById('alertBox');
+            if (!alertBox) return;
+            
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type}`;
+            alertBox.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertBox.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        function showLoading(message = 'Generando imagen...') {
+            const overlay = document.getElementById('loadingOverlay');
+            const text = document.getElementById('loadingText');
+            text.textContent = message;
+            overlay.style.display = 'flex';
+        }
+        
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = 'none';
+        }
+        
+        // ====================================================================
+        // GENERACIÓN DE CÓDIGO DE BARRAS - CON ROTACIÓN CORREGIDA
+        // ====================================================================
+        
+        function generateBarcode() {
+            const config = formatConfig[currentFormat];
+            let data = document.getElementById('dataInput').value.trim();
+            
+            // Validar datos según formato
+            let validation = config.validation(data);
+            
+            if (!validation.valid && validation.needsCheckDigit) {
+                showAlert(`⚠️ ${validation.message}. Se generará con dígito correcto.`, 'warning');
+            } else if (!validation.valid) {
+                showAlert(`❌ ${validation.message}`, 'error');
+                document.getElementById('complianceInfo').style.display = 'none';
+                document.getElementById('nonComplianceInfo').style.display = 'flex';
+                document.getElementById('nonComplianceText').textContent = validation.message;
+                return;
+            }
+            
+            // Usar datos validados
+            let barcodeData = validation.dataFull;
+            
+            // Configurar dimensiones según escala y formato
+            let height = config.defaultHeight * currentScale;
+            let width = config.defaultWidth * currentScale;
+            
+            // Configurar opciones para JsBarcode
+            const options = {
+                format: currentFormat === 'UPC' ? 'UPC' : currentFormat,
+                width: currentFormat === 'ITF14' ? 2 : 1,
+                height: height * 0.0393701 * 96, // Convertir mm a píxeles (96 DPI)
+                displayValue: true,
+                textMargin: 10,
+                fontSize: 16,
+                background: currentBgColor,
+                lineColor: currentBarColor,
+                margin: currentFormat === 'ITF14' ? 15 : 10,
+                marginTop: 20,
+                marginBottom: 20,
+                marginLeft: 20,
+                marginRight: 20,
+                flat: currentFormat === 'ITF14' // Solo para ITF-14
+            };
+            
+            try {
+                // Limpiar SVG existente
+                const barcodeSVG = document.getElementById('barcode');
+                barcodeSVG.innerHTML = '';
+                
+                // Generar código de barras
+                JsBarcode("#barcode", barcodeData, options);
+                
+                // Aplicar rotación si es necesario
+                if (currentRotation !== 0) {
+                    barcodeSVG.style.transform = `rotate(${currentRotation}deg)`;
+                    barcodeSVG.style.transformOrigin = 'center center';
+                } else {
+                    barcodeSVG.style.transform = 'rotate(0deg)';
+                }
+                
+                currentBarcode = { 
+                    data: barcodeData,
+                    dataBase: validation.dataBase,
+                    checkDigit: validation.calculatedCheckDigit,
+                    format: currentFormat,
+                    formatName: config.name,
+                    options: options,
+                    height: height,
+                    width: width,
+                    barColor: currentBarColor,
+                    bgColor: currentBgColor,
+                    rotation: currentRotation
+                };
+                
+                // Mostrar éxito
+                document.getElementById('noBarcode').style.display = 'none';
+                document.getElementById('complianceInfo').style.display = 'flex';
+                document.getElementById('complianceText').textContent = 
+                    `${config.name} válido según estándares internacionales`;
+                document.getElementById('nonComplianceInfo').style.display = 'none';
+                document.getElementById('codeDisplay').style.display = 'block';
+                document.getElementById('codeDisplay').textContent = barcodeData;
+                
+                // Actualizar información en el panel
+                const codeInfoElement = document.getElementById('codeInfo');
+                if (codeInfoElement) {
+                    let checkDigitInfo = "";
+                    if (validation.needsCheckDigit && validation.calculatedCheckDigit !== null) {
+                        checkDigitInfo = `<br><span style="color: var(--success); font-weight: bold;">✓ Dígito validador calculado: ${validation.calculatedCheckDigit}</span>`;
+                    }
+                    
+                    codeInfoElement.innerHTML = `
+                        <strong>${config.name}</strong><br>
+                        <span style="font-size: 12px;">Código completo: ${barcodeData}</span>
+                        ${checkDigitInfo}<br>
+                        <span style="font-size: 11px; color: #666;">Datos base: ${validation.dataBase}</span><br>
+                        <span style="font-size: 11px; color: #666;">Altura: ${height.toFixed(1)}mm • Escala: ${currentScale * 100}% • DPI: ${currentDPI}</span><br>
+                        <span style="font-size: 11px; color: #666;">Rotación: ${currentRotation}° • Colores: Personalizados</span>
+                    `;
+                }
+                
+                // Actualizar dimensiones
+                document.getElementById('currentHeight').textContent = `${height.toFixed(1)} mm`;
+                document.getElementById('currentWidth').textContent = `${width.toFixed(1)} mm`;
+                
+                if (validation.valid && !validation.needsCheckDigit) {
+                    showAlert(`✅ ${config.name} generado correctamente.`, 'success');
+                } else if (validation.needsCheckDigit && validation.calculatedCheckDigit !== null) {
+                    showAlert(`✅ ${config.name} generado con dígito validador: ${validation.calculatedCheckDigit}`, 'success');
+                } else {
+                    showAlert(`✅ ${config.name} generado correctamente.`, 'success');
+                }
+                
+            } catch (error) {
+                console.error('Error al generar código:', error);
+                showAlert(`❌ Error al generar código: ${error.message}`, 'error');
+                document.getElementById('nonComplianceInfo').style.display = 'flex';
+                document.getElementById('nonComplianceText').textContent = error.message;
+                document.getElementById('complianceInfo').style.display = 'none';
+            }
+        }
+        
+        // ====================================================================
+        // FUNCIONES DE DESCARGA - CON ROTACIÓN CORREGIDA
+        // ====================================================================
+        
+        function downloadPNG() {
+            if (!currentBarcode) {
+                showAlert('❌ Genere un código de barras primero', 'error');
+                return;
+            }
+            
+            const svg = document.getElementById('barcode');
+            
+            if (!svg || svg.innerHTML === '') {
+                showAlert('❌ No hay código de barras para descargar', 'error');
+                return;
+            }
+            
+            showLoading(`Generando PNG (${currentDPI} DPI)...`);
+            
+            setTimeout(() => {
+                try {
+                    // Clonar el SVG para no modificar el original
+                    const svgClone = svg.cloneNode(true);
+                    
+                    // Guardar la rotación original
+                    const originalTransform = svg.style.transform;
+                    
+                    // Aplicar rotación al clon
+                    if (currentRotation !== 0) {
+                        svgClone.style.transform = `rotate(${currentRotation}deg)`;
+                        svgClone.style.transformOrigin = 'center center';
+                    }
+                    
+                    const xml = new XMLSerializer().serializeToString(svgClone);
+                    const img = new Image();
+                    const scale = currentDPI / 96;
+                    
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        
+                        // Calcular dimensiones del canvas considerando la rotación
+                        let canvasWidth, canvasHeight;
+                        if (currentRotation === 90 || currentRotation === 270) {
+                            canvasWidth = img.height * scale;
+                            canvasHeight = img.width * scale;
+                        } else {
+                            canvasWidth = img.width * scale;
+                            canvasHeight = img.height * scale;
+                        }
+                        
+                        canvas.width = Math.round(canvasWidth);
+                        canvas.height = Math.round(canvasHeight);
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Fondo con color personalizado
+                        ctx.fillStyle = currentBgColor;
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Configurar calidad según DPI
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = currentDPI >= 300 ? 'high' : 'medium';
+                        
+                        // Aplicar rotación
+                        ctx.save();
+                        if (currentRotation !== 0) {
+                            ctx.translate(canvas.width / 2, canvas.height / 2);
+                            ctx.rotate(currentRotation * Math.PI / 180);
+                            ctx.translate(-canvas.width / 2, -canvas.height / 2);
+                        }
+                        
+                        // Dibujar imagen escalada
+                        ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
+                        ctx.restore();
+                        
+                        // Convertir a Blob y descargar
+                        canvas.toBlob((blob) => {
+                            const a = document.createElement('a');
+                            const fileName = `${currentBarcode.formatName}_${currentBarcode.data}_${currentScale * 100}porc_${currentDPI}dpi.png`;
+                            a.download = fileName;
+                            a.href = URL.createObjectURL(blob);
+                            a.click();
+                            
+                            // Liberar memoria
+                            setTimeout(() => {
+                                URL.revokeObjectURL(a.href);
+                                canvas.width = 0;
+                                canvas.height = 0;
+                            }, 100);
+                            
+                            hideLoading();
+                            showAlert(`✅ PNG (${currentDPI} DPI) descargado como "${fileName}"`, 'success');
+                        }, 'image/png', 1.0);
+                    };
+                    
+                    img.onerror = () => {
+                        hideLoading();
+                        showAlert('❌ Error al generar imagen PNG', 'error');
+                    };
+                    
+                    img.src = 'data:image/svg+xml;base64,' + btoa(xml);
+                    
+                } catch (error) {
+                    hideLoading();
+                    console.error('Error en downloadPNG:', error);
+                    showAlert('❌ Error al procesar la imagen: ' + error.message, 'error');
+                }
+            }, 100);
+        }
+        
+        function downloadSVG() {
+            const svg = document.getElementById('barcode');
+            
+            if (!svg || !currentBarcode || svg.innerHTML === '') {
+                showAlert('❌ Genere un código de barras primero', 'error');
+                return;
+            }
+            
+            showLoading('Preparando SVG vectorial...');
+            
+            setTimeout(() => {
+                try {
+                    const svgClone = svg.cloneNode(true);
+                    
+                    // Aplicar transformación de rotación si es necesario
+                    if (currentRotation !== 0) {
+                        const bbox = svgClone.getBBox();
+                        const centerX = bbox.x + bbox.width / 2;
+                        const centerY = bbox.y + bbox.height / 2;
+                        
+                        const transform = `rotate(${currentRotation} ${centerX} ${centerY})`;
+                        const gElement = svgClone.querySelector('g');
+                        if (gElement) {
+                            if (gElement.getAttribute('transform')) {
+                                gElement.setAttribute('transform', `${gElement.getAttribute('transform')} ${transform}`);
+                            } else {
+                                gElement.setAttribute('transform', transform);
+                            }
+                        }
+                    }
+                    
+                    // Añadir atributos de calidad y metadatos
+                    svgClone.setAttribute('version', '1.1');
+                    svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                    svgClone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+                    
+                    // Crear encabezado SVG con metadatos y copyright
+                    const currentYear = new Date().getFullYear();
+                    const svgData = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- 
+  Generado con Generador de Códigos de Barras Professional © ${currentYear}
+  Todos los derechos reservados
+-->
+<!-- 
+  Format: ${currentBarcode.formatName}
+  Data: ${currentBarcode.data}
+  ${currentBarcode.checkDigit ? `Check Digit: ${currentBarcode.checkDigit}` : ''}
+  Scale: ${currentScale * 100}%
+  Rotation: ${currentRotation}°
+  Bar Color: ${currentBarColor}
+  Background Color: ${currentBgColor}
+  Generation Date: ${new Date().toISOString()}
+-->
+${new XMLSerializer().serializeToString(svgClone)}`;
+                    
+                    const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                    
+                    const a = document.createElement('a');
+                    const fileName = `${currentBarcode.formatName}_${currentBarcode.data}_vectorial.svg`;
+                    a.href = URL.createObjectURL(blob);
+                    a.download = fileName;
+                    a.click();
+                    
+                    // Limpiar URL
+                    setTimeout(() => URL.revokeObjectURL(a.href), 100);
+                    
+                    hideLoading();
+                    
+                    showAlert(`✅ SVG vectorial descargado como "${fileName}"`, 'success');
+                    
+                } catch (error) {
+                    hideLoading();
+                    showAlert('❌ Error al generar SVG: ' + error.message, 'error');
+                }
+            }, 300);
+        }
+        
+        function downloadJPG() {
+            if (!currentBarcode) {
+                showAlert('❌ Genere un código de barras primero', 'error');
+                return;
+            }
+            
+            const svg = document.getElementById('barcode');
+            
+            if (!svg || svg.innerHTML === '') {
+                showAlert('❌ No hay código de barras para descargar', 'error');
+                return;
+            }
+            
+            showLoading(`Generando JPG (${currentDPI} DPI)...`);
+            
+            setTimeout(() => {
+                try {
+                    // Clonar el SVG para no modificar el original
+                    const svgClone = svg.cloneNode(true);
+                    
+                    // Aplicar rotación al clon
+                    if (currentRotation !== 0) {
+                        svgClone.style.transform = `rotate(${currentRotation}deg)`;
+                        svgClone.style.transformOrigin = 'center center';
+                    }
+                    
+                    const xml = new XMLSerializer().serializeToString(svgClone);
+                    const img = new Image();
+                    const scale = currentDPI / 96;
+                    
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        
+                        // Calcular dimensiones del canvas considerando la rotación
+                        let canvasWidth, canvasHeight;
+                        if (currentRotation === 90 || currentRotation === 270) {
+                            canvasWidth = img.height * scale;
+                            canvasHeight = img.width * scale;
+                        } else {
+                            canvasWidth = img.width * scale;
+                            canvasHeight = img.height * scale;
+                        }
+                        
+                        // Limitar tamaño máximo para JPG
+                        const maxDimension = 4000;
+                        if (canvasWidth > maxDimension || canvasHeight > maxDimension) {
+                            const scaleRatio = Math.min(maxDimension / canvasWidth, maxDimension / canvasHeight);
+                            canvasWidth = canvasWidth * scaleRatio;
+                            canvasHeight = canvasHeight * scaleRatio;
+                        }
+                        
+                        canvas.width = Math.round(canvasWidth);
+                        canvas.height = Math.round(canvasHeight);
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Fondo con color personalizado (importante para JPG)
+                        ctx.fillStyle = currentBgColor;
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Configurar calidad
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'medium';
+                        
+                        // Aplicar rotación
+                        ctx.save();
+                        if (currentRotation !== 0) {
+                            ctx.translate(canvas.width / 2, canvas.height / 2);
+                            ctx.rotate(currentRotation * Math.PI / 180);
+                            ctx.translate(-canvas.width / 2, -canvas.height / 2);
+                        }
+                        
+                        // Dibujar imagen
+                        ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
+                        ctx.restore();
+                        
+                        // Convertir a Blob para JPG
+                        canvas.toBlob((blob) => {
+                            const a = document.createElement('a');
+                            const fileName = `${currentBarcode.formatName}_${currentBarcode.data}_${currentScale * 100}porc_${currentDPI}dpi.jpg`;
+                            a.download = fileName;
+                            a.href = URL.createObjectURL(blob);
+                            a.click();
+                            
+                            // Liberar memoria
+                            setTimeout(() => {
+                                URL.revokeObjectURL(a.href);
+                                canvas.width = 0;
+                                canvas.height = 0;
+                            }, 100);
+                            
+                            hideLoading();
+                            showAlert(`✅ JPG (${currentDPI} DPI) descargado como "${fileName}"`, 'success');
+                        }, 'image/jpeg', 0.92); // Calidad 0.92 para buen balance tamaño/calidad
+                    };
+                    
+                    img.onerror = () => {
+                        hideLoading();
+                        showAlert('❌ Error al generar imagen JPG', 'error');
+                    };
+                    
+                    img.src = 'data:image/svg+xml;base64,' + btoa(xml);
+                    
+                } catch (error) {
+                    hideLoading();
+                    console.error('Error en downloadJPG:', error);
+                    showAlert('❌ Error al procesar la imagen JPG: ' + error.message, 'error');
+                }
+            }, 100);
+        }
+        
+        // ====================================================================
+        // FUNCIÓN DE IMPRESIÓN
+        // ====================================================================
+        
+        function printBarcode() {
+            if (!currentBarcode) {
+                showAlert('❌ Genere un código de barras primero', 'error');
+                return;
+            }
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Imprimir Código ${currentBarcode.formatName}</title>
+                    <style>
+                        @media print {
+                            @page {
+                                size: auto;
+                                margin: 15mm;
+                            }
+                            body {
+                                margin: 0;
+                                padding: 0;
+                            }
+                        }
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            text-align: center; 
+                            padding: 30px; 
+                            margin: 0;
+                        }
+                        h1 { 
+                            color: #253e86; 
+                            margin-bottom: 15px;
+                            font-size: 20px;
+                        }
+                        .barcode-info {
+                            background: #f8f9fa;
+                            padding: 15px;
+                            border-radius: 6px;
+                            margin-bottom: 15px;
+                            text-align: left;
+                            display: inline-block;
+                            font-size: 13px;
+                            max-width: 600px;
+                        }
+                        svg { 
+                            max-width: 100%; 
+                            height: auto; 
+                            margin: 15px 0; 
+                            transform: rotate(${currentRotation}deg);
+                            transform-origin: center center;
+                        }
+                        .print-controls {
+                            margin-top: 20px;
+                            padding: 15px;
+                            background: #f0f0f0;
+                            border-radius: 5px;
+                        }
+                        .print-btn {
+                            background: #253e86;
+                            color: white;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin: 0 5px;
+                            font-size: 14px;
+                        }
+                        .copyright {
+                            font-size: 10px;
+                            color: #999;
+                            margin-top: 20px;
+                            text-align: center;
+                        }
+                        @media print {
+                            .print-controls {
+                                display: none;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>Código de Barras ${currentBarcode.formatName}</h1>
+                    <div class="barcode-info">
+                        <p><strong>Formato:</strong> ${currentBarcode.formatName}</p>
+                        <p><strong>Código completo:</strong> ${currentBarcode.data}</p>
+                        ${currentBarcode.checkDigit ? `<p><strong>Dígito validador:</strong> ${currentBarcode.checkDigit}</p>` : ''}
+                        <p><strong>Escala:</strong> ${currentScale * 100}%</p>
+                        <p><strong>Rotación:</strong> ${currentRotation}°</p>
+                        <p><strong>Color barras:</strong> ${currentBarColor}</p>
+                        <p><strong>Color fondo:</strong> ${currentBgColor}</p>
+                        <p><strong>Altura:</strong> ${currentBarcode.height.toFixed(1)} mm</p>
+                        <p><strong>DPI recomendado:</strong> 300+ para impresión profesional</p>
+                    </div>
+                    
+                    ${document.getElementById('barcode').outerHTML}
+                    
+                    <div class="print-controls">
+                        <p><strong>Configuración de impresión:</strong></p>
+                        <button class="print-btn" onclick="window.print()">🖨️ Imprimir</button>
+                        <button class="print-btn" onclick="window.close()">❌ Cerrar</button>
+                        <p style="margin-top: 10px; font-size: 12px;">Asegúrese de que la impresión esté configurada al 100%</p>
+                    </div>
+                    
+                    <div class="copyright">
+                        © 2025 Generador de Códigos de Barras Professional - Todos los derechos reservados
+                    </div>
+                    
+                    <script>
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                            }, 500);
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+        
+        // Inicializar con DPI 300 (recomendado para impresión)
+        selectDPI(300);
+    </script>
+</body>
+</html>
